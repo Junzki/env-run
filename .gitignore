@@ -1,0 +1,60 @@
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r
+._*
+.Spotlight-V100/
+.Trashes
+.fseventsd/
+.TemporaryItems/
+.DocumentRevisions-V100/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.iml
+out/
+
+# Go
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of the go coverage tool
+coverage.out
+
+# Dependency directories
+vendor/
+
+# Built application binary, build output
+/bin/
+_output/
+
+# Go workspace and module files (optional)
+go.work
+go.work.sum
+
+# Temporary files
+*.log
+*.tmp
+
+# JetBrains
+# See https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+.idea/
+*.iml
+
+# Visual Studio Code
+# Local history and workspace storage
+.vscode/
+
+# Misc
+Thumbs.db
+desktop.ini
+
+# Build folder
+[Bb]uild/

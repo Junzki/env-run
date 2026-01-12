@@ -1,4 +1,4 @@
-module env-run
+module github.com/junzki/env-run
 
 go 1.25.4
 

@@ -1,0 +1,46 @@
+name: Publish Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+
+jobs:
+    publish-linux:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                go-version: '1.25.4'
+            - name: Publish Linux Release
+              run: |
+                go build -o env-run-linux-amd64 .
+                gh release upload ${{ github.ref_name }} env-run-linux-amd64 --repo andrija/env-run
+    
+    publish-macos:
+        runs-on: macos-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                go-version: '1.25.4'
+            - name: Publish macOS Release
+              run: |
+                go build -o env-run-macos-amd64 .
+                gh release upload ${{ github.ref_name }} env-run-macos-amd64 --repo andrija/env-run
+    
+    publish-windows:
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                go-version: '1.25.4'
+            - name: Publish Windows Release
+              run: |
+                go build -o env-run-windows-amd64.exe .
+                gh release upload ${{ github.ref_name }} env-run-windows-amd64.exe --repo andrija/env-run

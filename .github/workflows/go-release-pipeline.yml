@@ -1,0 +1,81 @@
+name: Go Release Pipeline
+
+on:
+  push:
+    tags:
+      - "v*" # Only trigger on tags like v1.0.0
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}-${{ matrix.goarch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            artifact_name: env-run-linux-amd64
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+            artifact_name: env-run-windows-amd64
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+            artifact_name: env-run-macos-arm64 # For Apple Silicon
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.4"
+          cache: true
+
+      - name: Build
+        shell: bash
+        run: |
+          BINARY_NAME="env-run"
+          # Append `.exe` suffix for Windows targets
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            BINARY_NAME="${BINARY_NAME}.exe"
+          fi
+
+          # Execute build, disable CGO for better portability (unless you must use CGO)
+          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+          go build -ldflags="-s -w" -o "dist/${BINARY_NAME}" .
+
+          # Rename the file to include architecture information for easier user download
+          cd dist
+          mv "${BINARY_NAME}" "env-run-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goos == 'windows' && '.exe' || '' }}"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./assets
+          merge-multiple: true # Merge artifacts from all build jobs into a single directory
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./assets/*
+          generate_release_notes: true  # Generate release notes based on merged PRs since the last release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
